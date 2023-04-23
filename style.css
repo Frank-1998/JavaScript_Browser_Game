@@ -16,4 +16,5 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    pointer-events: none; /* make sure overlay image doesn't interfere with mouse events on canvas */
 }
