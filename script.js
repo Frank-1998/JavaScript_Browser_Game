@@ -115,16 +115,30 @@ window.addEventListener('load', function(){
             this.player.update();
             this.obstacles.forEach(obstacle => obstacle.draw(context));
         }
-        init(){
-            for (let i = 0; i < this.numberOfObstacles; i++){
-                this.obstacles.push(new Obstacle(this));
+        init(){ // init all the obstacles and make sure they don't overlap
+            let attempt = 0;
+            while (this.obstacles.length < this.numberOfObstacles && attempt < 500){
+                let testObs = new Obstacle(this);
+                let overLap = false;
+                this.obstacles.forEach(obstacle => {
+                    const dx = testObs.collisionX - obstacle.collisionX;
+                    const dy = testObs.collisionY - obstacle.collisionY;
+                    const distanceBetweenCircle = Math.hypot(dy, dx);
+                    const sumOfRadius = testObs.collisionRadius + obstacle.collisionRadius;
+                    if (distanceBetweenCircle < sumOfRadius){
+                        overLap = true;
+                    }
+                });
+                if(!overLap){
+                    this.obstacles.push(testObs);
+                }
+                attempt++;
             }
         }
     }
 
     const game = new Game(canvas);
     game.init();
-    console.log(game);
     function animate(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
         game.render(ctx);
