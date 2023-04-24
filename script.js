@@ -64,18 +64,20 @@ window.addEventListener('load', function(){
             this.game = game;
             this.collisionX = Math.random() * this.game.width;
             this.collisionY = Math.random() * this.game.height;
-            this.collisionRadius = 60;
+            this.collisionRadius = 40;
             this.image = document.getElementById('obstacles');
             this.spriteWidth = 250;
             this.spriteHeight = 250;
-            this.width = this.spriteWidth;
+            this.width = this.spriteWidth; // size for each one of the frames
             this.height = this.spriteHeight;
-            this.spriteX = this.collisionX - this.width * 0.5;
+            this.spriteX = this.collisionX - this.width * 0.5;  // position for drawing indivisial frame
             this.spriteY = this.collisionY - this.height * 0.5 - 70;
+            this.frameX = Math.floor(Math.random() * 4); 
+            this.frameY = Math.floor(Math.random() * 3);
         }
 
         draw(context){
-            context.drawImage(this.image, 0, 0, this.width, this.height, this.spriteX, this.spriteY, this.spriteWidth, this.spriteHeight);
+            context.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.width, this.height, this.spriteX, this.spriteY, this.spriteWidth, this.spriteHeight);
             context.beginPath();
             context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
             context.save(); // to limit the canvase setting use save and restore.
@@ -93,7 +95,8 @@ window.addEventListener('load', function(){
             this.height = canvas.height;
             this.player = new Player(this);
             this.obstacles = [];
-            this.numberOfObstacles = 1;
+            this.numberOfObstacles = 5;
+            this.topMargine = 260; // the space for the bush in the background
             this.mouse = {
                 x: this.width * 0.5,
                 y: this.height * 0.5,
@@ -132,12 +135,15 @@ window.addEventListener('load', function(){
                     const dx = testObs.collisionX - obstacle.collisionX;
                     const dy = testObs.collisionY - obstacle.collisionY;
                     const distanceBetweenCircle = Math.hypot(dy, dx);
-                    const sumOfRadius = testObs.collisionRadius + obstacle.collisionRadius;
+                    const distanceBuffer = 150; // make sure each obstacle has minimum distance between them
+                    const sumOfRadius = testObs.collisionRadius + obstacle.collisionRadius + distanceBuffer;
                     if (distanceBetweenCircle < sumOfRadius){
                         overLap = true;
                     }
                 });
-                if(!overLap){
+                const margine = testObs.collisionRadius * 2; // used for the space between this top and the bottom of the moving area, so that characters can squeez between
+
+                if(!overLap && testObs.spriteX > 0 && testObs.spriteX < this.width - testObs.width && testObs.collisionY > this.topMargine + margine && testObs.collisionY < this.height - margine){
                     this.obstacles.push(testObs);
                 }
                 attempt++;
