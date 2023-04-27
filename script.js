@@ -56,6 +56,10 @@ window.addEventListener('load', function(){
             }
             this.collisionX += this.speedX * this.speedModifier;
             this.collisionY += this.speedY * this.speedModifier;
+            // check collision with obstacles
+            this.game.obstacles.forEach(obstacle => {
+                console.log(this.game.checkCollision(this, obstacle));
+            })
         }
     }
 
@@ -126,6 +130,15 @@ window.addEventListener('load', function(){
             this.player.update();
             this.obstacles.forEach(obstacle => obstacle.draw(context));
         }
+
+        checkCollision(a,b){
+            const dx = a.collisionX - b.collisionX;
+            const dy = a.collisionY - b.collisionY;
+            const distance = Math.hypot(dy, dx);
+            const sumOfRadii = a.collisionRadius + b.collisionRadius;
+            return (distance < sumOfRadii);
+        }
+
         init(){ // init all the obstacles and make sure they don't overlap
             let attempt = 0;
             while (this.obstacles.length < this.numberOfObstacles && attempt < 500){
