@@ -83,6 +83,12 @@ window.addEventListener('load', function(){
             this.collisionY += this.speedY * this.speedModifier;
             this.spriteX = this.collisionX - this.width * 0.5;
             this.spriteY = this.collisionY - this.height * 0.5 - 100;
+            // horizontal boundaries
+            if (this.collisionX < 0 + this.collisionRadius) this.collisionX = this.collisionRadius;
+            else if (this.collisionX > this.game.width - this.collisionRadius) this.collisionX = this.game.width - this.collisionRadius;
+            // vertical boundary
+            if (this.collisionY < this.game.topMargine + this.collisionRadius) this.collisionY = this.game.topMargine + this.collisionRadius;
+            else if (this.collisionY > this.game.height - this.collisionRadius) this.collisionY = this.game.height - this.collisionRadius;
             // check collision with obstacles
             this.game.obstacles.forEach(obstacle => {
                 let [collision, distance, sumOfRadii, dx, dy] = this.game.checkCollision(this,obstacle);
@@ -196,7 +202,7 @@ window.addEventListener('load', function(){
                         overLap = true;
                     }
                 });
-                const margine = testObs.collisionRadius * 2; // used for the space between this top and the bottom of the moving area, so that characters can squeez between
+                const margine = testObs.collisionRadius * 3; // used for the space between this top and the bottom of the moving area, so that characters can squeez between
 
                 if(!overLap && testObs.spriteX > 0 && testObs.spriteX < this.width - testObs.width && testObs.collisionY > this.topMargine + margine && testObs.collisionY < this.height - margine){
                     this.obstacles.push(testObs);
