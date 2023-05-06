@@ -41,17 +41,20 @@ window.addEventListener('load', function(){
 
         draw(context){
             context.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.spriteX, this.spriteY, this.width, this.height);
-            context.beginPath();
-            context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
-            context.save(); // to limit the canvase setting use save and restore.
-            context.globalAlpha = 0.5;
-            context.fill();
-            context.restore();
-            context.stroke();
-            context.beginPath();
-            context.moveTo(this.collisionX,this.collisionY);
-            context.lineTo(this.game.mouse.x, this.game.mouse.y);
-            context.stroke();
+            if (this.game.debug){
+                context.beginPath();
+                context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
+                context.save(); // to limit the canvase setting use save and restore.
+                context.globalAlpha = 0.5;
+                context.fill();
+                context.restore();
+                context.stroke();
+                context.beginPath();
+                context.moveTo(this.collisionX,this.collisionY);
+                context.lineTo(this.game.mouse.x, this.game.mouse.y);
+                context.stroke();
+            }
+            
         }
         update(){
             this.dx = this.game.mouse.x - this.collisionX;
@@ -113,13 +116,16 @@ window.addEventListener('load', function(){
 
         draw(context){
             context.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.width, this.height, this.spriteX, this.spriteY, this.spriteWidth, this.spriteHeight);
-            context.beginPath();
-            context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
-            context.save(); // to limit the canvase setting use save and restore.
-            context.globalAlpha = 0.5;
-            context.fill();
-            context.restore();
-            context.stroke();
+            if (this.game.debug){
+                context.beginPath();
+                context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
+                context.save(); // to limit the canvase setting use save and restore.
+                context.globalAlpha = 0.5;
+                context.fill();
+                context.restore();
+                context.stroke();
+            }
+            
         }
     }
 
@@ -132,6 +138,7 @@ window.addEventListener('load', function(){
             this.obstacles = [];
             this.numberOfObstacles = 5;
             this.topMargine = 260; // the space for the bush in the background
+            this.debug = true;
             this.mouse = {
                 x: this.width * 0.5,
                 y: this.height * 0.5,
@@ -154,6 +161,10 @@ window.addEventListener('load', function(){
                     this.mouse.x = e.offsetX;
                     this.mouse.y = e.offsetY;
                 }
+            });
+            window.addEventListener('keydown', e => {
+                if (e.key == 'd') this.debug = !this.debug;
+                
             });
         }
         render(context){
