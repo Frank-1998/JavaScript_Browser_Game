@@ -29,7 +29,7 @@ window.addEventListener('load', function(){
             this.dy = 0;
             this.speedModifier = 5;
             this.spriteWidth = 255;
-            this.spriteHeight = 255;
+            this.spriteHeight = 256;
             this.width = this.spriteWidth;
             this.height = this.spriteHeight;
             this.spriteX;
@@ -141,6 +141,9 @@ window.addEventListener('load', function(){
             this.width = canvas.width;
             this.height = canvas.height;
             this.player = new Player(this);
+            this.fps = 144; // leftover delta time make the game not actually 144 fps
+            this.timer = 0;
+            this.interval = 1000/this.fps;
             this.obstacles = [];
             this.numberOfObstacles = 5;
             this.topMargine = 260; // the space for the bush in the background
@@ -173,10 +176,17 @@ window.addEventListener('load', function(){
                 
             });
         }
-        render(context){
-            this.obstacles.forEach(obstacle => obstacle.draw(context));
-            this.player.draw(context);
-            this.player.update();
+        render(context, deltaTime){
+            if(this.timer > this.interval){
+                // animate the next frame
+                context.clearRect(0, 0, this.width, this.height); // clear this canvas only before drawing the next frame
+                this.obstacles.forEach(obstacle => obstacle.draw(context));
+                this.player.draw(context);
+                this.player.update();
+                this.timer = 0;
+            }
+            this.timer += deltaTime
+            
         }
 
         checkCollision(a,b){
@@ -214,10 +224,15 @@ window.addEventListener('load', function(){
 
     const game = new Game(canvas);
     game.init();
-    function animate(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        game.render(ctx);
+
+    let lastTime = 0;
+    function animate(timeStamp){
+        // FSP control
+        const deltaTime = timeStamp - lastTime;
+        lastTime = timeStamp;
+        // ctx.clearRect(0,0,canvas.width,canvas.height);
+        game.render(ctx, deltaTime);
         window.requestAnimationFrame(animate);
     }
-    animate();
+    animate(0);
 });
