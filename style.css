@@ -19,6 +19,6 @@
     pointer-events: none; /* make sure overlay image doesn't interfere with mouse events on canvas */
 }
 
-#obstacles, #bull {
+#obstacles, #bull, #egg {
     display: none;
 }
