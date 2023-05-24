@@ -147,8 +147,8 @@ window.addEventListener('load', function(){
             this.spriteHeight = 135;
             this.width = this.spriteWidth;
             this.height = this.spriteHeight;
-            this.spriteX = this.collisionX - this.width * 0.5;
-            this.spriteY = this.collisionY - this.height * 0.5 - 30;
+            this.spriteX; 
+            this.spriteY;
 
         }
 
@@ -165,7 +165,19 @@ window.addEventListener('load', function(){
             }
         }
         update(){
-            
+            this.spriteX = this.collisionX - this.width * 0.5;
+            this.spriteY = this.collisionY - this.height * 0.5 - 30;
+            let collisionObjs = [this.game.player, ...this.game.obstacles]; // all objects that will collide with egg, ... is spride operator
+            collisionObjs.forEach(object =>{
+                let [collision, distance, sumOfRadii, dx, dy] = this.game.checkCollision(this, object); // check collision status between egg as all objects that can collide with egg
+                if (collision){
+                    const unit_x = dx / distance;
+                    const unit_y = dy / distance;
+                    this.collisionX = object.collisionX + (sumOfRadii + 1) * unit_x;
+                    this.collisionY = object.collisionY + (sumOfRadii + 1) * unit_y;
+                }
+            });
+
         }
     }
 
@@ -219,7 +231,10 @@ window.addEventListener('load', function(){
                 // animate the next frame
                 context.clearRect(0, 0, this.width, this.height); // clear this canvas only before drawing the next frame
                 this.obstacles.forEach(obstacle => obstacle.draw(context));
-                this.eggs.forEach(egg => egg.draw(context));
+                this.eggs.forEach(egg => {
+                    egg.draw(context);
+                    egg.update();
+                });
                 this.player.draw(context);
                 this.player.update();
                 this.timer = 0;
@@ -237,6 +252,12 @@ window.addEventListener('load', function(){
             
         }
 
+        /**
+         * 
+         * @param {object} a - game objects, player, obstecal etc.
+         * @param {object} b - same as a
+         * @returns {Array} [ifCollide(boolean), distance between 2 collision circle points, sum of collision circle radii, horizontal distance, vertical distance] 
+         */
         checkCollision(a,b){
             const dx = a.collisionX - b.collisionX;
             const dy = a.collisionY - b.collisionY;
