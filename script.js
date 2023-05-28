@@ -133,6 +133,9 @@ window.addEventListener('load', function(){
             }
             
         }
+        update(){
+            // this method is empty but needed for render in Game class.
+        }
     }
 
     class Egg {
@@ -198,6 +201,7 @@ window.addEventListener('load', function(){
             this.maxEggs = 10;
             this.topMargine = 260; // the space for the bush in the background
             this.debug = true;
+            this.gameObjects = [];
             this.mouse = {
                 x: this.width * 0.5,
                 y: this.height * 0.5,
@@ -230,13 +234,16 @@ window.addEventListener('load', function(){
             if(this.timer > this.interval){
                 // animate the next frame
                 context.clearRect(0, 0, this.width, this.height); // clear this canvas only before drawing the next frame
-                this.obstacles.forEach(obstacle => obstacle.draw(context));
-                this.eggs.forEach(egg => {
-                    egg.draw(context);
-                    egg.update();
+                this.gameObjects = [...this.eggs, ...this.obstacles, this.player]
+                // sort game object array based on the vertical position
+                this.gameObjects.sort((a, b) =>{
+                    return a.collisionY - b.collisionY;
                 });
-                this.player.draw(context);
-                this.player.update();
+                this.gameObjects.forEach(object => {
+                    object.draw(context);
+                    object.update();
+                });
+                
                 this.timer = 0;
             }
             this.timer += deltaTime
@@ -245,7 +252,6 @@ window.addEventListener('load', function(){
             if (this.eggTimer > this.eggInterval && this.eggs.length < this.maxEggs){
                 this.addEgg();
                 this.eggTimer = 0;
-                console.log(this.eggs);
             } else {
                 this.eggTimer += deltaTime;
             }
