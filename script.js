@@ -170,7 +170,7 @@ window.addEventListener('load', function(){
         update(){
             this.spriteX = this.collisionX - this.width * 0.5;
             this.spriteY = this.collisionY - this.height * 0.5 - 30;
-            let collisionObjs = [this.game.player, ...this.game.obstacles]; // all objects that will collide with egg, ... is spride operator
+            let collisionObjs = [this.game.player, ...this.game.obstacles, ...this.game.enemies]; // all objects that will collide with egg, ... is spride operator
             collisionObjs.forEach(object =>{
                 let [collision, distance, sumOfRadii, dx, dy] = this.game.checkCollision(this, object); // check collision status between egg as all objects that can collide with egg
                 if (collision){
@@ -181,6 +181,57 @@ window.addEventListener('load', function(){
                 }
             });
 
+        }
+    }
+
+    class Enemy {
+        constructor(game){
+            this.game = game;
+            this.collisionRadius = 30;
+            this.speedX = Math.random() * 3 + 0.5;
+            this.image = document.getElementById('toad');
+            this.spriteWidth = 140;
+            this.spriteHeight = 260;
+            this.width = this.spriteWidth;
+            this.height = this.spriteHeight;
+            this.collisionX = this.game.width + this.width + Math.random() * this.game.width * 0.5; // enemy will appear from right side
+            this.collisionY = this.game.topMargine + (Math.random() * (this.game.height - this.game.topMargine));
+            this.spriteX;
+            this.spriteY;
+
+        }
+
+        draw(context){
+            context.drawImage(this.image, this.spriteX, this.spriteY);
+            if (this.game.debug){
+                context.beginPath();
+                context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
+                context.save(); // to limit the canvase setting use save and restore.
+                context.globalAlpha = 0.5;
+                context.fill();
+                context.restore();
+                context.stroke();
+            }
+        }
+
+        update(){
+            this.spriteX = this.collisionX - this.width * 0.5;
+            this.spriteY = this.collisionY - this.height + 40;
+            this.collisionX -= this.speedX;
+            if(this.spriteX + this.width < 0){
+                this.collisionX = this.game.width + this.width + Math.random() * this.game.width * 0.5; // give enemy random delay before re-appear from the right side
+                this.collisionY = this.game.topMargine + (Math.random() * (this.game.height - this.game.topMargine)); // restrict enemy vertical position
+            }
+            let collisionObjs = [this.game.player, ...this.game.obstacles]; // all objects that will collide with egg, ... is spride operator
+            collisionObjs.forEach(object =>{
+                let [collision, distance, sumOfRadii, dx, dy] = this.game.checkCollision(this, object); // check collision status between egg as all objects that can collide with egg
+                if (collision){
+                    const unit_x = dx / distance;
+                    const unit_y = dy / distance;
+                    this.collisionX = object.collisionX + (sumOfRadii + 1) * unit_x;
+                    this.collisionY = object.collisionY + (sumOfRadii + 1) * unit_y;
+                }
+            });
         }
     }
 
@@ -202,6 +253,7 @@ window.addEventListener('load', function(){
             this.topMargine = 260; // the space for the bush in the background
             this.debug = true;
             this.gameObjects = [];
+            this.enemies = [];
             this.mouse = {
                 x: this.width * 0.5,
                 y: this.height * 0.5,
@@ -234,7 +286,7 @@ window.addEventListener('load', function(){
             if(this.timer > this.interval){
                 // animate the next frame
                 context.clearRect(0, 0, this.width, this.height); // clear this canvas only before drawing the next frame
-                this.gameObjects = [...this.eggs, ...this.obstacles, this.player]
+                this.gameObjects = [...this.eggs, ...this.obstacles, this.player, ...this.enemies];
                 // sort game object array based on the vertical position
                 this.gameObjects.sort((a, b) =>{
                     return a.collisionY - b.collisionY;
@@ -276,7 +328,15 @@ window.addEventListener('load', function(){
             this.eggs.push(new Egg(this));
         }
 
+        addEnemy(){
+            this.enemies.push(new Enemy(this));
+        }
+
         init(){ // init all the obstacles and make sure they don't overlap
+            for(let i = 0; i < 3; i++){
+                this.addEnemy();
+                
+            }
             let attempt = 0;
             while (this.obstacles.length < this.numberOfObstacles && attempt < 500){
                 let testObs = new Obstacle(this);
