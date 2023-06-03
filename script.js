@@ -390,7 +390,15 @@ window.addEventListener('load', function(){
             } else {
                 this.eggTimer += deltaTime;
             }
-            
+
+            // draw game status text
+            context.save();
+            context.textAlign = 'left';
+            context.fillText('Score: ' + this.score, 25,50);
+            if (this.debug){
+                context.fillText('Lost: ' + this.lostHatchlings, 25, 100);
+            }
+            context.restore();
         }
 
         /**
