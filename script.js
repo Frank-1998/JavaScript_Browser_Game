@@ -275,7 +275,7 @@ window.addEventListener('load', function(){
             this.game = game;
             this.collisionRadius = 30;
             this.speedX = Math.random() * 3 + 0.5;
-            this.image = document.getElementById('toad');
+            this.image = document.getElementById('toads');
             this.spriteWidth = 140;
             this.spriteHeight = 260;
             this.width = this.spriteWidth;
@@ -284,11 +284,13 @@ window.addEventListener('load', function(){
             this.collisionY = this.game.topMargine + (Math.random() * (this.game.height - this.game.topMargine));
             this.spriteX;
             this.spriteY;
+            this.frameX = 0;
+            this.frameY = Math.floor(Math.random() * 4);
 
         }
 
         draw(context){
-            context.drawImage(this.image, this.spriteX, this.spriteY);
+            context.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.spriteX, this.spriteY, this.width, this.height);
             if (this.game.debug){ // for debugging, draw the collision circle
                 context.beginPath();
                 context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
@@ -307,6 +309,7 @@ window.addEventListener('load', function(){
             if(this.spriteX + this.width < 0){
                 this.collisionX = this.game.width + this.width + Math.random() * this.game.width * 0.5; // give enemy random delay before re-appear from the right side
                 this.collisionY = this.game.topMargine + (Math.random() * (this.game.height - this.game.topMargine)); // restrict enemy vertical position
+                this.frameY = Math.floor(Math.random() * 4);
             }
             let collisionObjs = [this.game.player, ...this.game.obstacles]; // all objects that will collide with egg, ... is spride operator
             collisionObjs.forEach(object =>{
