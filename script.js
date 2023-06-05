@@ -400,7 +400,7 @@ window.addEventListener('load', function(){
             this.numberOfObstacles = 5;
             this.maxEggs = 10;
             this.topMargine = 260; // the space for the bush in the background
-            this.debug = true;
+            this.debug = false;
             this.gameObjects = [];
             this.enemies = [];
             this.hatchlings = [];
@@ -468,9 +468,7 @@ window.addEventListener('load', function(){
             context.save();
             context.textAlign = 'left';
             context.fillText('Score: ' + this.score, 25,50);
-            if (this.debug){
-                context.fillText('Lost: ' + this.lostHatchlings, 25, 100);
-            }
+            context.fillText('Lost: ' + this.lostHatchlings, 25, 100);
             context.restore();
 
             // win/lose message
