@@ -15,7 +15,7 @@ window.addEventListener('load', function(){
     ctx.fillStyle = 'white';
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'black';
-    ctx.font = '40px Helvetica';
+    ctx.font = '40px Bangers';
     ctx.textAlign = 'center';
 
     // setting up player and game so that game will automaticly generate player
@@ -240,7 +240,7 @@ window.addEventListener('load', function(){
             if (this.collisionY < this.game.topMargine){
                 this.markedForDeletion = true;
                 this.game.removeGameObjects();
-                this.game.score++;
+                if (!this.game.gameOver) this.game.score++;
                 for (let i = 0; i < 3; i++){
                     this.game.particles.push(new Firefly(this.game, this.collisionX, this.collisionY, 'yellow'));
                 }
@@ -306,7 +306,8 @@ window.addEventListener('load', function(){
             this.spriteX = this.collisionX - this.width * 0.5;
             this.spriteY = this.collisionY - this.height + 40;
             this.collisionX -= this.speedX;
-            if(this.spriteX + this.width < 0){
+            // reset enemies
+            if(this.spriteX + this.width < 0 && !this.game.gameOver){
                 this.collisionX = this.game.width + this.width + Math.random() * this.game.width * 0.5; // give enemy random delay before re-appear from the right side
                 this.collisionY = this.game.topMargine + (Math.random() * (this.game.height - this.game.topMargine)); // restrict enemy vertical position
                 this.frameY = Math.floor(Math.random() * 4);
@@ -398,7 +399,9 @@ window.addEventListener('load', function(){
             this.hatchlings = [];
             this.particles = [];
             this.score = 0;
+            this.winningScore = 5;
             this.lostHatchlings = 0;
+            this.gameOver = false;
             this.mouse = {
                 x: this.width * 0.5,
                 y: this.height * 0.5,
@@ -446,7 +449,7 @@ window.addEventListener('load', function(){
             this.timer += deltaTime
 
             // add eggs periodically
-            if (this.eggTimer > this.eggInterval && this.eggs.length < this.maxEggs){
+            if (this.eggTimer > this.eggInterval && this.eggs.length < this.maxEggs && !this.gameOver){
                 this.addEgg();
                 this.eggTimer = 0;
             } else {
@@ -461,6 +464,36 @@ window.addEventListener('load', function(){
                 context.fillText('Lost: ' + this.lostHatchlings, 25, 100);
             }
             context.restore();
+
+            // win/lose message
+            if (this.score >= this.winningScore){
+                this.gameOver = true;
+                context.save();
+                context.fillStyle = 'rgba(0,0,0,0.5)';
+                context.fillRect(0,0,this.width,this.height);
+                context.fillStyle = 'white';
+                context.textAlign = 'center';
+                context.shadowOffsetX = 4;
+                context.shadowOffsetY = 4;
+                context.shadowColor = 'black';
+                let message1;
+                let message2;
+                if (this.lostHatchlings <= 5){
+                    // win
+                    message1 = "Bullseye!";
+                    message2 = "You win!";
+                } else {
+                    // lose
+                    message1 = "Bullocks!"
+                    message2 = "You lost" + this.lostHatchlings + "hatchlings, don't be a pushover!"
+                }
+                context.font = '130px Bangers';
+                context.fillText(message1, this.width * 0.5, this.height * 0.5 - 20);
+                context.font = '40px Bangers';
+                context.fillText(message2, this.width * 0.5, this.height * 0.5 + 30);
+                context.fillText("Final Score: " + this.score + ". Press R to start again.", this.width * 0.5, this.height * 0.5 + 80);
+                context.restore();
+            }
         }
 
         /**
