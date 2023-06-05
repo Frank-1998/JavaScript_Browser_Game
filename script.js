@@ -41,6 +41,13 @@ window.addEventListener('load', function(){
             this.image = document.getElementById('bull');
         }
 
+        restart(){
+            this.collisionX = this.game.width * 0.5;
+            this.collisionY = this.game.height * 0.5;
+            this.spriteX = this.collisionX - this.width * 0.5;
+            this.spriteY = this.collisionY - this.height * 0.5 - 100;
+        }
+
         draw(context){
             context.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.spriteX, this.spriteY, this.width, this.height);
             if (this.game.debug){
@@ -178,7 +185,7 @@ window.addEventListener('load', function(){
             this.spriteX = this.collisionX - this.width * 0.5;
             this.spriteY = this.collisionY - this.height * 0.5 - 30;
             // collision handling
-            let collisionObjs = [this.game.player, ...this.game.obstacles, ...this.game.enemies]; // all objects that will collide with egg, ... is spride operator
+            let collisionObjs = [this.game.player, ...this.game.obstacles, ...this.game.enemies, ...this.game.hatchlings]; // all objects that will collide with egg, ... is spride operator
             collisionObjs.forEach(object =>{
                 let [collision, distance, sumOfRadii, dx, dy] = this.game.checkCollision(this, object); // check collision status between egg as all objects that can collide with egg
                 if (collision){
@@ -258,7 +265,7 @@ window.addEventListener('load', function(){
             });
             // collison with enemies
             this.game.enemies.forEach(enemy =>{
-                if (this.game.checkCollision(this, enemy)[0]){
+                if (this.game.checkCollision(this, enemy)[0] && !this.game.gameOver){
                     this.markedForDeletion = true;
                     this.game.removeGameObjects();
                     this.game.lostHatchlings++;
@@ -427,6 +434,7 @@ window.addEventListener('load', function(){
             });
             window.addEventListener('keydown', e => {
                 if (e.key == 'd') this.debug = !this.debug;
+                if (e.key == 'r') this.restart();
                 
             });
         }
@@ -522,6 +530,24 @@ window.addEventListener('load', function(){
             this.eggs = this.eggs.filter(object => !object.markedForDeletion); // replace old egg array with all the eggs that has markedForDeletion set as false
             this.hatchlings = this.hatchlings.filter(object => !object.markedForDeletion); // remove all larva objcets that can be removed
             this.particles = this.particles.filter(object => !object.markedForDeletion);
+        }
+
+        restart(){
+            this.player.restart();
+            this.obstacles = [];
+            this.eggs = [];
+            this.enemies = [];
+            this.hatchlings = [];
+            this.particles = [];
+            this.mouse = {
+                x: this.width * 0.5,
+                y: this.height * 0.5,
+                pressed: false
+            }
+            this.lostHatchlings = 0;
+            this.score = 0;
+            this.gameOver = false;
+            this.init();
         }
 
         init(){ // init all the obstacles and make sure they don't overlap
